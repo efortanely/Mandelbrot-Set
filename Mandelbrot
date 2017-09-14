@@ -1,0 +1,46 @@
+import java.applet.Applet;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+public class Mandelbrot extends Applet{
+	private boolean[][] set;
+	private Color[][] pixels;
+	
+	@Override public void init(){
+		set = new boolean[getWidth()][getHeight()];
+		pixels = new Color[getWidth()][getHeight()];
+		
+		for(int x = 0; x < set.length; x++){
+			for(int y = 0; y < set[x].length; y++){
+				//scale to the mandelbrot set values x [-2.5,1] and y [-1,1]
+				Complex c = new Complex(map(x,0,set.length,-2.5,1), map(y,0,set[x].length,-1,1)), z = new Complex();
+				int iteration = 0, max_iteration = 30;
+				
+				do{
+					z = z.pow(2).plus(c);
+					iteration++;					
+				}while(z.abs_optimized() <= 4 && iteration < max_iteration);
+				
+				float hue = (float) map((iteration%max_iteration),0,max_iteration,0,1);
+				pixels[x][y] = Color.getHSBColor(hue, 0.8f, 0.6f);
+			}
+		}
+	}
+	
+	@Override public void paint(Graphics g){
+		g.setColor(Color.black);
+		g.fillRect(0, 0, getWidth(), getHeight());
+		for(int x = 0; x < set.length; x++){
+			for(int y = 0; y < set[x].length; y++){
+				g.setColor(pixels[x][y]);
+				g.drawRect(x, y, 1, 1);
+				
+			}
+		}
+	}
+	
+	private double map(double val,  double min1, double max1, double min2, double max2){
+		return ((val - min1) / (max1 - min1)) * (max2 - min2) + min2;
+	}
+}
